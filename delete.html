@@ -1,55 +1,58 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Удаление аккаунта - ZAPCHASTI PRO</title>
-<style>
-body{font-family:sans-serif;background-color:#14141a;color:#fff;display:flex;justify-content:center;align-items:center;height:100vh;margin:0}
-.container{padding:20px;background-color:#26262b;border-radius:10px;box-shadow:0 4px 10px rgba(0,0,0,0.3);width:100%;max-width:400px;text-align:center}
-h2{color:#ff8000}
-input[type="text"]{width:100%;padding:10px;margin:15px 0;border:1px solid #444;border-radius:5px;background-color:#1c1c21;color:#fff;box-sizing:border-box}
-button{width:100%;padding:12px;background-color:#e60000;color:#fff;border:none;border-radius:5px;font-weight:700;cursor:pointer}
-button:hover{background-color:#b30000}
-#message{margin-top:15px;font-size:14px}
-</style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Удаление аккаунта - ZAPCHASTI PRO</title>
+    <style>
+        body{font-family:sans-serif;background-color:#14141a;color:#fff;display:flex;justify-content:center;align-items:center;height:100vh;margin:0}
+        .container{padding:20px;background-color:#26262b;border-radius:10px;box-shadow:0 4px 10px rgba(0,0,0,0.3);width:100%;max-width:400px;text-align:center}
+        h2{color:#ff8000;margin-top:0;}
+        p{font-size:14px;color:#ccc;line-height:1.5;}
+        input[type="number"]{width:100%;padding:12px;margin:15px 0;border:1px solid #444;border-radius:5px;background-color:#1c1c21;color:#fff;box-sizing:border-box;font-size:16px;}
+        button{width:100%;padding:15px;background-color:#e60000;color:#fff;border:none;border-radius:5px;font-weight:bold;cursor:pointer;font-size:16px;text-transform:uppercase;}
+        button:hover{background-color:#b30000}
+        #statusMessage{margin-top:20px;font-weight:bold;font-size:14px}
+    </style>
 </head>
 <body>
-<div class="container">
-<h2>Удаление аккаунта</h2>
-<p>Введите ваш номер телефона (10 цифр), чтобы полностью удалить аккаунт и историю заказов.</p>
-<input type="text" id="phone" placeholder="Например: 0686765012" maxlength="10">
-<button onclick="deleteAccount()">Удалить аккаунт навсегда</button>
-<div id="message"></div>
-</div>
-<script>
-async function deleteAccount(){
-    const phoneInput=document.getElementById("phone").value.trim();
-    const msgDiv=document.getElementById("message");
-    if(phoneInput.length!==10||!/^\d+$/.test(phoneInput)){
-        msgDiv.style.color="#ff8000";
-        msgDiv.innerText="Ошибка: Введите ровно 10 цифр номера телефона!";
-        return;
-    }
-    if(!confirm("Вы уверены? Это действие полностью сотрет ваш профиль и историю заказов без возможности восстановления!")){
-        return;
-    }
-    msgDiv.style.color="#fff";
-    msgDiv.innerText="Отправка запроса...";
-    try{
-        const response=await fetch("https://zapchasti-backend-2.onrender.com/api/clients/delete?phone="+phoneInput, {method:"DELETE"});
-        if(response.ok){
-            msgDiv.style.color="#00ff00";
-            msgDiv.innerText="Запрос успешно отправлен! Ваш аккаунт будет удален в течение 24 часов.";
-        }else{
-            msgDiv.style.color="#ff3333";
-            msgDiv.innerText="Ошибка сервера. Проверьте правильность номера или повторите позже.";
+    <div class="container">
+        <h2>Запрос на удаление данных</h2>
+        <p>Введите ваш 10-значный номер телефона. Все ваши персональные данные и история профиля будут безвозвратно удалены.</p>
+        <input type="number" id="phoneInput" placeholder="Например: 0686765017" maxlength="10">
+        <button onclick="sendDeleteRequest()">Удалить аккаунт</button>
+        <div id="statusMessage"></div>
+    </div>
+    <script>
+        async function sendDeleteRequest() {
+            const phone = document.getElementById('phoneInput').value.trim();
+            const msgEl = document.getElementById('statusMessage');
+            
+            if (phone.length !== 10) {
+                msgEl.style.color = '#ff9800';
+                msgEl.innerText = 'Ошибка: Введите ровно 10 цифр номера.';
+                return;
+            }
+            
+            msgEl.style.color = '#fff';
+            msgEl.innerText = 'Отправка запроса...';
+            
+            try {
+                const response = await fetch(`https://zapchasti-backend-2.onrender.com/api/clients/delete?phone=${phone}`, { method: 'DELETE' });
+                
+                if (response.ok) {
+                    msgEl.style.color = '#00ff00';
+                    msgEl.innerText = 'Успех: Аккаунт и все данные полностью удалены.';
+                    document.getElementById('phoneInput').value = '';
+                } else {
+                    msgEl.style.color = '#ff3333';
+                    msgEl.innerText = 'Ошибка: Аккаунт не найден.';
+                }
+            } catch (error) {
+                msgEl.style.color = '#ff3333';
+                msgEl.innerText = 'Критическая ошибка: Нет связи с сервером.';
+            }
         }
-    }catch(error){
-        msgDiv.style.color="#ff3333";
-        msgDiv.innerText="Не удалось связаться с сервером. Попробуйте позже.";
-    }
-}
-</script>
+    </script>
 </body>
 </html>
